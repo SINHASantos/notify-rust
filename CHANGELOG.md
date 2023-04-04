@@ -1,5 +1,19 @@
 # Changelog
 
+## [v4.9.0](https://github.com/hoodie/notify-rust/compare/v4.8.0...v4.9.0) (2023-04-04)
+
+### Features
+
+* **xdg:** make dbus bus configurable
+([a514664](https://github.com/hoodie/notify-rust/commit/a514664cbe3277231106775482a87ac792f21635))
+
+### Fixes
+
+* remove server feature
+([f8e89cf](https://github.com/hoodie/notify-rust/commit/f8e89cfd1a392d9b6cff43adcb167e9f64ebbdec))
+* building with both dbus and zbus backend
+([83d4489](https://github.com/hoodie/notify-rust/commit/83d44898a853944b9e62b77655c6384c5e75030c))
+
 ## [v4.8.0](https://github.com/hoodie/notify-rust/compare/v4.7.1...v4.8.0) (2023-02-19)
 
 ### Features

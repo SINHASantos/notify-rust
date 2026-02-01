@@ -1,5 +1,19 @@
 # Changelog
 
+## [v4.12.0](https://github.com/hoodie/notify-rust/compare/v4.11.7...v4.12.0) (2026-02-01)
+
+### Features
+
+* add `z-with-tokio` feature (#245)
+([895280c](https://github.com/hoodie/notify-rust/commit/895280c0209786f87bb7dbaf751561bed13eb4cd)),
+closes [#245](https://github.com/hoodie/notify-rust/issues/245)
+
+### Fixes
+
+* **zbus:** don't unwrap result of close_fallible
+([d0c0d84](https://github.com/hoodie/notify-rust/commit/d0c0d8448771afca9902bb6ddcc65b823f4cdf0c)),
+closes [#253](https://github.com/hoodie/notify-rust/issues/253)
+
 ### [v4.11.7](https://github.com/hoodie/notify-rust/compare/v4.11.6...v4.11.7) (2025-04-08)
 
 #### Fixes

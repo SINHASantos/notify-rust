@@ -95,7 +95,7 @@ impl ZbusNotificationHandle {
     }
 
     pub async fn close(self) {
-        self.close_fallible().await.unwrap();
+        let _ = self.close_fallible().await;
     }
 
     pub fn on_close<F>(self, closure: F)

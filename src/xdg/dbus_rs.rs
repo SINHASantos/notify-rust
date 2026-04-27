@@ -87,8 +87,8 @@ impl DbusNotificationHandle {
         }
     }
 
-    pub fn wait_for_action(self, invocation_closure: impl ActionResponseHandler) {
-        wait_for_action_signal(&self.connection, self.id, invocation_closure);
+    pub fn wait_for_action(self, invocation_closure: impl ActionResponseHandler) -> Result<()> {
+        wait_for_action_signal(&self.connection, self.id, invocation_closure)
     }
 
     pub fn close(self) {
@@ -97,7 +97,7 @@ impl DbusNotificationHandle {
         let _ = self.connection.send(message); // If closing fails there's nothing we could do anyway
     }
 
-    pub fn on_close<F>(self, closure: F)
+    pub fn on_close<F>(self, closure: F) -> Result<()>
     where
         F: FnOnce(CloseReason),
     {
@@ -105,7 +105,7 @@ impl DbusNotificationHandle {
             if let ActionResponse::Closed(reason) = action {
                 closure(*reason);
             }
-        });
+        })
     }
 
     pub fn update(&mut self) {
@@ -257,25 +257,25 @@ pub fn get_server_information() -> Result<ServerInformation> {
 /// Listens for the `ActionInvoked(UInt32, String)` Signal.
 ///
 /// No need to use this, check out `Notification::show_and_wait_for_action(FnOnce(action:&str))`
-pub fn handle_action(id: u32, func: impl ActionResponseHandler) {
-    let connection = Connection::get_private(BusType::Session).unwrap();
-    wait_for_action_signal(&connection, id, func);
+pub fn handle_action(id: u32, func: impl ActionResponseHandler) -> Result<()> {
+    let connection = Connection::get_private(BusType::Session)?;
+    wait_for_action_signal(&connection, id, func)
 }
 
 // Listens for the `ActionInvoked(UInt32, String)` signal.
-fn wait_for_action_signal(connection: &Connection, id: u32, handler: impl ActionResponseHandler) {
-    connection
-        .add_match(&format!(
-            "interface='{}',member='ActionInvoked'",
-            NOTIFICATION_INTERFACE
-        ))
-        .unwrap();
-    connection
-        .add_match(&format!(
-            "interface='{}',member='NotificationClosed'",
-            NOTIFICATION_INTERFACE
-        ))
-        .unwrap();
+fn wait_for_action_signal(
+    connection: &Connection,
+    id: u32,
+    handler: impl ActionResponseHandler,
+) -> Result<()> {
+    connection.add_match(&format!(
+        "interface='{}',member='ActionInvoked'",
+        NOTIFICATION_INTERFACE
+    ))?;
+    connection.add_match(&format!(
+        "interface='{}',member='NotificationClosed'",
+        NOTIFICATION_INTERFACE
+    ))?;
 
     for item in connection.iter(1000) {
         if let ConnectionItem::Signal(message) = item {
@@ -325,4 +325,5 @@ fn wait_for_action_signal(connection: &Connection, id: u32, handler: impl Action
             }
         }
     }
+    Ok(())
 }

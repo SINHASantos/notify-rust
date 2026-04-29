@@ -100,7 +100,7 @@ impl NotificationHandle {
         match self.inner {
             #[cfg(feature = "dbus")]
             NotificationHandleInner::Dbus(inner) => {
-                inner.wait_for_action(|action: &ActionResponse| match action {
+                let _ = inner.wait_for_action(|action: &ActionResponse| match action {
                     ActionResponse::Custom(action) => invocation_closure(action),
                     ActionResponse::Closed(_reason) => invocation_closure("__closed"), // FIXME: remove backward compatibility with 5.0
                 });
@@ -240,7 +240,7 @@ impl NotificationHandle {
         match self.inner {
             #[cfg(feature = "dbus")]
             NotificationHandleInner::Dbus(inner) => {
-                inner.wait_for_action(|action: &ActionResponse| {
+                let _ = inner.wait_for_action(|action: &ActionResponse| {
                     if let ActionResponse::Closed(reason) = action {
                         handler.call(*reason);
                     }
@@ -550,11 +550,12 @@ pub struct ServerInformation {
 /// (xdg only)
 #[cfg(all(feature = "zbus", not(feature = "dbus")))]
 // #[deprecated(note="please use [`NotificationHandle::wait_for_action`]")]
-pub fn handle_action<F>(id: u32, func: F)
+pub fn handle_action<F>(id: u32, func: F) -> Result<()>
 where
     F: FnOnce(&ActionResponse),
 {
     block_on(zbus_rs::handle_action(id, func));
+    Ok(())
 }
 
 /// Listens for the `ActionInvoked(UInt32, String)` Signal.
@@ -563,11 +564,11 @@ where
 /// (xdg only)
 #[cfg(all(feature = "dbus", not(feature = "zbus")))]
 // #[deprecated(note="please use `NotificationHandle::wait_for_action`")]
-pub fn handle_action<F>(id: u32, func: F)
+pub fn handle_action<F>(id: u32, func: F) -> Result<()>
 where
     F: FnOnce(&ActionResponse),
 {
-    dbus_rs::handle_action(id, func);
+    dbus_rs::handle_action(id, func)
 }
 
 /// Listens for the `ActionInvoked(UInt32, String)` Signal.
@@ -576,14 +577,15 @@ where
 /// both dbus-rs and zbus, switch via `$ZBUS_NOTIFICATION`
 #[cfg(all(feature = "dbus", feature = "zbus"))]
 // #[deprecated(note="please use `NotificationHandle::wait_for_action`")]
-pub fn handle_action<F>(id: u32, func: F)
+pub fn handle_action<F>(id: u32, func: F) -> Result<()>
 where
     F: FnOnce(&ActionResponse),
 {
     if std::env::var(DBUS_SWITCH_VAR).is_ok() {
-        dbus_rs::handle_action(id, func);
+        dbus_rs::handle_action(id, func)
     } else {
         block_on(zbus_rs::handle_action(id, func));
+        Ok(())
     }
 }
 
